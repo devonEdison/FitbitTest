@@ -3,13 +3,15 @@ package com.wits.fitbittest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
-import org.scribe.builder.ServiceBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class AuthenticationActivity extends Activity {
@@ -17,87 +19,59 @@ public class AuthenticationActivity extends Activity {
 	private static final String TAG = "AuthenticationActivity";
 
 	@SuppressLint("JavascriptInterface")
-    @Override
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
 		final WebView wvAuthorise = (WebView) findViewById(R.id.wvAuthorise);
 		wvAuthorise.getSettings().setJavaScriptEnabled(true);
-		wvAuthorise.addJavascriptInterface(new MyJavaScriptInterface(/*this*/), "HtmlViewer");
+		wvAuthorise.getSettings().setLoadWithOverviewMode(true);
+		wvAuthorise.getSettings().setUseWideViewPort(true);
+		wvAuthorise.getSettings().setBuiltInZoomControls(true);
 		wvAuthorise.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-//            	wvAuthorise.loadUrl("javascript:window.HtmlViewer.showHTML" +
-//                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
-                Uri uri = Uri.parse(url);
-				String code = uri.getQueryParameter("token");
-                Log.d(TAG,"devon check code = "+ code);
-            }
-        });
-
-		// Replace these with your own api key and secret
-		String apiKey = "5dbccac0710c4d2ca0814f232beac1b5";
-		String apiSecret = "f7e6a726b0eb49829816f75fccd30a54";
-
-		MainActivity.service = new ServiceBuilder().provider(FitbitApi.class).apiKey(apiKey)
-				.apiSecret(apiSecret).build();
-
-		// network operation shouldn't run on main thread
-		new Thread(new Runnable() {
-			public void run() {
-				MainActivity.requestToken = MainActivity.service.getRequestToken();
-				final String authURL = MainActivity.service.getAuthorizationUrl(MainActivity.requestToken);
-				Log.d(TAG,"devon check authURL = "+ authURL);
-				// Webview nagivation should run on main thread again...
-				wvAuthorise.post(new Runnable() {
-					@Override
-					public void run() {
-						wvAuthorise.loadUrl(authURL);
-					}
-				});
+			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+				Toast.makeText(AuthenticationActivity.this, "Oh no! " + description, Toast.LENGTH_SHORT).show();
 			}
-		}).start();
-	}
-	
-	class MyJavaScriptInterface
-	{
-		boolean firstRun=true;
-		//Context ctx;
-		public MyJavaScriptInterface() {
-		}
-		/*public MyJavaScriptInterface(Context _ctx) {
-	    	ctx = _ctx;
-		}*/
-
-		public void showHTML(final String html) {
-			if(firstRun){
-				firstRun=false;
-				return;
+			public void onLoadResource(WebView view, String url) {
+//				Toast.makeText(getApplicationContext(), wvAuthorise.getUrl(), Toast.LENGTH_SHORT).show();
 			}
-			
-			try {
-				
-				String divStr = "gap20\">";
-				int first = html.indexOf(divStr);
-				int second = html.indexOf("</div>",first);
-				
-				if(first!=-1){
-					final String pin = html.substring(first+divStr.length(),second);
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				Log.d(TAG,"55555555555555555555555555");
+				Log.v(TAG, url);
+				if(url.contains("disonash.temboolive.com/callback/fitbit")){
+					String access_token = getQueryString(url,"access_token");
+					// remember to decide if you want the first or last parameter with the same name
+					// If you want the first call setPreferFirstRepeatedParameter(true);
+					Log.d(TAG, "devon check code = " + access_token);
 					Intent intent = new Intent();
-					intent.putExtra("PIN",pin);
+					intent.putExtra("access_token",access_token);
 					setResult(RESULT_OK,intent);
 					finish();
 				}
-				else
-				{
-					/*new AlertDialog.Builder(ctx).setTitle("HTML").setMessage("first = "+first+" , second = "+second)
-                	.setPositiveButton(android.R.string.ok, null).setCancelable(false).create().show();*/
-				}
-
-			} catch (Exception e) {
-				/*new AlertDialog.Builder(ctx).setTitle("HTML").setMessage(e.getMessage())
-				.setPositiveButton(android.R.string.ok, null).setCancelable(false).create().show();*/
+				return true;
 			}
-        }
+		});
+		wvAuthorise.loadUrl("https://www.fitbit.com/oauth2/authorize?response_type=token&client_id=227TBR"+
+				"&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight");//&expires_in=604800
+	}
+
+	public static String getQueryString(String url, String tag) {
+		String[] params = url.split("&");
+		Map<String, String> map = new HashMap<String, String>();
+		for (String param : params) {
+			String name = param.split("=")[0];
+			String value = param.split("=")[1];
+			map.put(name, value);
+		}
+
+		Set<String> keys = map.keySet();
+		for (String key : keys) {
+			if(key.equals(tag)){
+				return map.get(key);
+			}
+			System.out.println("Name=" + key);
+			System.out.println("Value=" + map.get(key));
+		}
+		return "";
 	}
 }
