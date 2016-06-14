@@ -3,7 +3,9 @@ package com.wits.fitbittest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -11,6 +13,8 @@ import org.scribe.builder.ServiceBuilder;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class AuthenticationActivity extends Activity {
+
+	private static final String TAG = "AuthenticationActivity";
 
 	@SuppressLint("JavascriptInterface")
     @Override
@@ -23,8 +27,11 @@ public class AuthenticationActivity extends Activity {
 		wvAuthorise.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-            	wvAuthorise.loadUrl("javascript:window.HtmlViewer.showHTML" +
-                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+//            	wvAuthorise.loadUrl("javascript:window.HtmlViewer.showHTML" +
+//                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+                Uri uri = Uri.parse(url);
+				String code = uri.getQueryParameter("token");
+                Log.d(TAG,"devon check code = "+ code);
             }
         });
 
@@ -40,7 +47,7 @@ public class AuthenticationActivity extends Activity {
 			public void run() {
 				MainActivity.requestToken = MainActivity.service.getRequestToken();
 				final String authURL = MainActivity.service.getAuthorizationUrl(MainActivity.requestToken);
-
+				Log.d(TAG,"devon check authURL = "+ authURL);
 				// Webview nagivation should run on main thread again...
 				wvAuthorise.post(new Runnable() {
 					@Override
