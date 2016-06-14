@@ -39,8 +39,7 @@ public class AuthenticationActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				MainActivity.requestToken = MainActivity.service.getRequestToken();
-				final String authURL = MainActivity.service
-						.getAuthorizationUrl(MainActivity.requestToken);
+				final String authURL = MainActivity.service.getAuthorizationUrl(MainActivity.requestToken);
 
 				// Webview nagivation should run on main thread again...
 				wvAuthorise.post(new Runnable() {
