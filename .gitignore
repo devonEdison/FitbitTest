@@ -45,3 +45,9 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+.gradle/2.10/taskArtifacts/cache.properties.lock
+.gradle/2.10/taskArtifacts/fileHashes.bin
+.gradle/2.10/taskArtifacts/fileSnapshots.bin
+.gradle/2.10/taskArtifacts/outputFileStates.bin
+.gradle/2.10/taskArtifacts/taskArtifacts.bin
+build/generated/mockable-android-23.jar
