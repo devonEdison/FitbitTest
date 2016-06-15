@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -28,7 +29,16 @@ public class AuthenticationActivity extends Activity {
 		wvAuthorise.getSettings().setLoadWithOverviewMode(true);
 		wvAuthorise.getSettings().setUseWideViewPort(true);
 		wvAuthorise.getSettings().setBuiltInZoomControls(true);
+		wvAuthorise.setWebChromeClient(new WebChromeClient());
 		wvAuthorise.setWebViewClient(new WebViewClient() {
+
+			@Override
+			public void onPageFinished(WebView view, String url) {
+				super.onPageFinished(view, url);
+				Log.d(TAG,"1111111111111111111111");
+				Log.v(TAG, url);
+			}
+
 			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
 				Toast.makeText(AuthenticationActivity.this, "Oh no! " + description, Toast.LENGTH_SHORT).show();
 			}
@@ -38,13 +48,17 @@ public class AuthenticationActivity extends Activity {
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				Log.d(TAG,"55555555555555555555555555");
 				Log.v(TAG, url);
+				wvAuthorise.loadUrl(url);
 				if(url.contains("disonash.temboolive.com/callback/fitbit")){
 					String access_token = getQueryString(url,"access_token");
+					String user_id = getQueryString(url,"user_id");
 					// remember to decide if you want the first or last parameter with the same name
 					// If you want the first call setPreferFirstRepeatedParameter(true);
 					Log.d(TAG, "devon check code = " + access_token);
+					Log.d(TAG, "devon check user_id = " + user_id);
 					Intent intent = new Intent();
 					intent.putExtra("access_token",access_token);
+					intent.putExtra("user_id",user_id);
 					setResult(RESULT_OK,intent);
 					finish();
 				}
@@ -74,4 +88,5 @@ public class AuthenticationActivity extends Activity {
 		}
 		return "";
 	}
+
 }
