@@ -51,3 +51,5 @@ Temporary Items
 .gradle/2.10/taskArtifacts/outputFileStates.bin
 .gradle/2.10/taskArtifacts/taskArtifacts.bin
 build/generated/mockable-android-23.jar
+
+.idea/
