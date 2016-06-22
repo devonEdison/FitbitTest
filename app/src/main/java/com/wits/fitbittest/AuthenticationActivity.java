@@ -65,6 +65,8 @@ public class AuthenticationActivity extends Activity {
 				return true;
 			}
 		});
+		//TODO:please provide your personal client_id  here.
+
 		wvAuthorise.loadUrl("https://www.fitbit.com/oauth2/authorize?response_type=token&client_id=227TBR"+
 				"&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight");//&expires_in=604800
 	}
